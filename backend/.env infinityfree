@@ -1,0 +1,6 @@
+# Clever Cloud MySQL
+DB_HOST=sql108.infinityfree.com
+DB_USER=if0_41709022
+DB_PASS=msBeyaElTje
+DB_NAME=if0_41709022_db_panaderia
+DB_PORT=3306
