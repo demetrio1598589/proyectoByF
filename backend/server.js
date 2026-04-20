@@ -1,14 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-// Cargar variables de entorno
-dotenv.config();
+require('dotenv').config(); // ✅ CORREGIDO
 
 // Importar conexión a DB
 const connection = require('./config/db');
 
 // Importar rutas
+const authRoutes = require('./routes/auth');
 const usuariosRouter = require('./routes/usuarios');
 const productosRouter = require('./routes/productos');
 const ventasRouter = require('./routes/ventas');
@@ -23,7 +21,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-  res.json({ message: 'API Panadería funcionando correctamente' });
+  res.json({ 
+    message: 'API Panadería funcionando correctamente',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      usuarios: '/api/usuarios',
+      productos: '/api/productos',
+      ventas: '/api/ventas'
+    }
+  });
 });
 
 // Ruta para verificar conexión a DB
@@ -45,6 +52,7 @@ app.get('/health', (req, res) => {
 });
 
 // ========== RUTAS DE LA API ==========
+app.use('/api/auth', authRoutes);      // ✅ Faltaba el punto y coma
 app.use('/api/usuarios', usuariosRouter);
 app.use('/api/productos', productosRouter);
 app.use('/api/ventas', ventasRouter);
@@ -54,14 +62,29 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
+// Manejo global de errores (opcional pero recomendado)
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ 
+    message: 'Error interno del servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📊 Base de datos: ${process.env.DB_NAME || 'No configurada'}`);
+  console.log(`🔐 JWT Secret: ${process.env.JWT_SECRET ? '✅ Configurado' : '❌ No configurado'}`);
   console.log(`\n📝 Endpoints disponibles:`);
-  console.log(`   GET  /api/usuarios`);
-  console.log(`   POST /api/usuarios`);
-  console.log(`   GET  /api/productos`);
-  console.log(`   POST /api/productos`);
-  console.log(`   POST /api/ventas`);
+  console.log(`   POST /api/auth/registro`);
+  console.log(`   POST /api/auth/login`);
+  console.log(`   GET  /api/auth/perfil (protegido)`);
+  console.log(`   GET  /api/usuarios (admin only)`);
+  console.log(`   POST /api/usuarios (admin only)`);
+  console.log(`   GET  /api/productos (protegido)`);
+  console.log(`   POST /api/productos (protegido)`);
+  console.log(`   PUT  /api/productos/:id (protegido)`);
+  console.log(`   DELETE /api/productos/:id (protegido)`);
+  console.log(`   POST /api/ventas (protegido)`);
 });
