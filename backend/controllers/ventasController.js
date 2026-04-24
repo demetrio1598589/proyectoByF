@@ -65,3 +65,62 @@ exports.crearVenta = (req, res) => {
     }
   );
 };
+
+// Agregar funciones faltantes
+exports.obtenerVentas = (req, res) => {
+  const sql = `
+    SELECT v.*, u.nombre as usuario_nombre 
+    FROM venta v
+    JOIN usuario u ON v.usuario_id = u.id_usuario
+    ORDER BY v.fecha DESC
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+exports.obtenerVentasUsuario = (req, res) => {
+  const usuario_id = req.usuario.id;
+  
+  const sql = `
+    SELECT * FROM venta 
+    WHERE usuario_id = ?
+    ORDER BY fecha DESC
+  `;
+  
+  db.query(sql, [usuario_id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+};
+
+exports.obtenerVentaPorId = (req, res) => {
+  const { id } = req.params;
+  
+  // Obtener venta principal
+  const sqlVenta = 'SELECT v.*, u.nombre FROM venta v JOIN usuario u ON v.usuario_id = u.id_usuario WHERE v.id_venta = ?';
+  
+  db.query(sqlVenta, [id], (err, ventaResult) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (ventaResult.length === 0) return res.status(404).json({ error: 'Venta no encontrada' });
+    
+    // Obtener detalles
+    const sqlDetalles = `
+      SELECT dv.*, p.nombre as producto_nombre 
+      FROM detalle_venta dv
+      JOIN producto p ON dv.producto_id = p.id_producto
+      WHERE dv.venta_id = ?
+    `;
+    
+    db.query(sqlDetalles, [id], (err, detallesResult) => {
+      if (err) return res.status(500).json({ error: err.message });
+      
+      res.json({
+        venta: ventaResult[0],
+        detalles: detallesResult
+      });
+    });
+  });
+};

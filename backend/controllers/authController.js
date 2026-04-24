@@ -2,6 +2,7 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt');
+const loginAttempts = new Map();
 
 // Registro de usuario
 exports.registro = async (req, res) => {
@@ -96,6 +97,17 @@ exports.registro = async (req, res) => {
 // Login de usuario
 exports.login = (req, res) => {
   const { email, password } = req.body;
+
+  // Verificar bloqueo por intentos
+  const attempts = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+  const now = Date.now();
+  
+  if (attempts.count >= 3 && (now - attempts.lastAttempt) < 30000) {
+    const tiempoRestante = Math.ceil((30000 - (now - attempts.lastAttempt)) / 1000);
+    return res.status(429).json({ 
+      error: `Demasiados intentos. Espere ${tiempoRestante} segundos` 
+    });
+  }
   
   if (!email || !password) {
     return res.status(400).json({ 
@@ -111,7 +123,7 @@ exports.login = (req, res) => {
     }
     
     if (results.length === 0) {
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+      return res.status(401).json({ error: 'Credenciales inválidas usuario' });
     }
     
     const usuario = results[0];
@@ -121,7 +133,7 @@ exports.login = (req, res) => {
       const passwordValido = await bcrypt.compare(password, usuario.password);
       
       if (!passwordValido) {
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+        return res.status(401).json({ error: 'Credenciales inválidas contraseña' });
       }
       
       // Generar token
@@ -153,6 +165,14 @@ exports.login = (req, res) => {
       res.status(500).json({ error: 'Error interno del servidor' });
     }
   });
+  if (resultadoFallido) {
+    loginAttempts.set(email, { 
+      count: attempts.count + 1, 
+      lastAttempt: now 
+    });
+  } else {
+    loginAttempts.delete(email);
+  }
 };
 
 // Obtener perfil del usuario autenticado

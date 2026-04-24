@@ -61,17 +61,24 @@ CREATE TABLE detalle_venta (
 -- Producción diaria (clave en panadería)
 CREATE TABLE produccion (
     id_produccion INT AUTO_INCREMENT PRIMARY KEY,
-    producto_id INT,
-    cantidad_producida INT,
-    fecha DATE,
-    FOREIGN KEY (producto_id) REFERENCES producto(id_producto)
-);
+    producto_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    cantidad_producida INT NOT NULL CHECK (cantidad_producida > 0),
+    fecha DATE NOT NULL,
+    observaciones TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (producto_id) REFERENCES producto(id_producto) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    INDEX idx_fecha (fecha),
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_producto (producto_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 👤 Usuarios
 INSERT INTO usuario (nombre, apellido, email, dni, password, rol) VALUES
-('Juan','Perez','juan@gmail.com','12345678','123456','admin'),
-('Maria','Lopez','maria@gmail.com','87654321','123456','cajero'),
-('Carlos','Quispe','carlos@gmail.com','11223344','123456','panadero');
+('Juan','Perez','juan@gmail.com','12345678','$2b$10$KYE3.xHeHwTFzwnpq01u4OovImYMisfPdNit4HZhQAjiv62q85icm','admin'),
+('Maria','Lopez','maria@gmail.com','87654321','$2b$10$KYE3.xHeHwTFzwnpq01u4OovImYMisfPdNit4HZhQAjiv62q85icm','cajero'),
+('Carlos','Quispe','carlos@gmail.com','11223344','$2b$10$KYE3.xHeHwTFzwnpq01u4OovImYMisfPdNit4HZhQAjiv62q85icm','panadero');
 
 -- 🥖 Productos
 INSERT INTO producto (nombre, descripcion, precio, stock, tipo) VALUES
@@ -90,12 +97,24 @@ INSERT INTO detalle_producto (producto_id, ingredientes, peso, calorias, fecha_v
 (5,'Café, agua, azúcar','250ml',50,'2026-04-21');
 
 -- 🏭 Producción diaria
-INSERT INTO produccion (producto_id, cantidad_producida, fecha) VALUES
-(1,200,'2026-04-20'),
-(2,150,'2026-04-20'),
-(3,80,'2026-04-20'),
-(4,20,'2026-04-20'),
-(5,50,'2026-04-20');
+INSERT INTO produccion (producto_id, usuario_id, cantidad_producida, fecha, observaciones) VALUES
+-- Producciones del panadero Carlos (ID=3)
+(1, 3, 200, '2026-04-20', 'Producción normal turno mañana - Pan Francés'),
+(2, 3, 150, '2026-04-20', 'Producción normal turno mañana - Pan Integral'),
+(3, 3, 80, '2026-04-20', 'Producción especial de croissants'),
+(4, 3, 20, '2026-04-20', 'Tortas de chocolate para el día'),
+(5, 3, 50, '2026-04-20', 'Café preparado del día'),
+
+-- Producciones adicionales para pruebas (día siguiente)
+(1, 3, 180, '2026-04-21', 'Pan francés - turno mañana'),
+(2, 3, 130, '2026-04-21', 'Pan integral - turno mañana'),
+(3, 3, 75, '2026-04-21', 'Croissants del día'),
+(5, 3, 45, '2026-04-21', 'Café del día'),
+
+-- Producciones del admin Juan (ID=1) cuando ayuda en producción
+(1, 1, 50, '2026-04-21', 'Producción extra turno tarde'),
+(2, 1, 40, '2026-04-21', 'Apoyo en producción integral'),
+(4, 1, 10, '2026-04-21', 'Tortas adicionales para evento');
 
 -- 🧾 Ventas
 INSERT INTO venta (usuario_id, total) VALUES
