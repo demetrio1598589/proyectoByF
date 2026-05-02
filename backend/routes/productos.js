@@ -3,13 +3,13 @@ const router = express.Router();
 const controller = require('../controllers/productosController');
 const { authMiddleware } = require('../middleware/auth');
 
-// Todas las rutas requieren autenticación
-router.use(authMiddleware);
-
+// Rutas públicas (sin autenticación)
 router.get('/', controller.obtenerProductos);
 router.get('/:id', controller.obtenerProductoPorId);
-router.post('/', controller.crearProducto);
-router.put('/:id', controller.actualizarProducto);
-router.delete('/:id', controller.eliminarProducto);
+
+// Rutas protegidas
+router.post('/', authMiddleware, controller.crearProducto);
+router.put('/:id', authMiddleware, controller.actualizarProducto);
+router.delete('/:id', authMiddleware, controller.eliminarProducto);
 
 module.exports = router;

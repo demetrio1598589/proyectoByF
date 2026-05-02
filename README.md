@@ -19,15 +19,16 @@ API RESTful para la gestión de una panadería, desarrollada con Node.js, Expres
 
 ## 🚀 Características
 
-- ✅ **CRUD completo** de productos, usuarios y ventas
-- ✅ **Autenticación** con JWT (en desarrollo)
+- ✅ **Autenticación JWT** con sistema de intentos y bloqueo
+- ✅ **CRUD completo** de productos, usuarios, ventas y producción
+- ✅ **Roles de usuario**: Admin, Cajero, Panadero
+- ✅ **Control de acceso RBAC** basado en roles
 - ✅ **Encriptación** de contraseñas con bcrypt
-- ✅ **Manejo de stock** automático al vender
+- ✅ **Manejo automático de stock** al vender y producir
+- ✅ **Registro de actividad** por usuario
 - ✅ **CORS habilitado** para conexión con frontend
-- ✅ **Variables de entorno** para configuración segura
-- ✅ **Base de datos** MySQL en Clever Cloud
 
-## 🛠 Tecnologías
+## 🛠 Tecnologías Backend
 
 - **Node.js** - Entorno de ejecución
 - **Express.js** - Framework web
@@ -38,6 +39,14 @@ API RESTful para la gestión de una panadería, desarrollada con Node.js, Expres
 - **cors** - Manejo de CORS
 - **dotenv** - Variables de entorno
 - **nodemon** - Reinicio automático en desarrollo
+
+## 🛠 Tecnologías Frontend
+
+- **REACT** - Framework de React
+- **VITE** - Build tool para React
+- **HTML5** - Estructura de la página
+- **CSS3** - Estilos de la página
+- **JavaScript** - Interactividad de la página
 
 ## 📦 Requisitos Previos
 

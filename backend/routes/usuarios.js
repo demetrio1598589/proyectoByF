@@ -9,5 +9,8 @@ router.use(verificarRol(['admin']));
 
 router.get('/', controller.obtenerUsuarios);
 router.post('/', controller.crearUsuario);
+router.get('/:id', controller.obtenerUsuarioPorId);
+router.put('/:id', controller.actualizarUsuario);
+router.delete('/:id', controller.eliminarUsuario);
 
 module.exports = router;

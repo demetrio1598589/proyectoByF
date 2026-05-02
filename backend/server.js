@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const usuariosRouter = require('./routes/usuarios');
 const productosRouter = require('./routes/productos');
 const ventasRouter = require('./routes/ventas');
+const produccionRouter = require('./routes/produccion');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,10 +53,11 @@ app.get('/health', (req, res) => {
 });
 
 // ========== RUTAS DE LA API ==========
-app.use('/api/auth', authRoutes);      // ✅ Faltaba el punto y coma
+app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRouter);
 app.use('/api/productos', productosRouter);
 app.use('/api/ventas', ventasRouter);
+app.use('/api/produccion', produccionRouter);
 
 // Manejo de errores 404
 app.use((req, res) => {
